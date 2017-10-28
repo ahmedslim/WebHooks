@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using Microsoft.AspNetCore.WebHooks;
 using Microsoft.AspNetCore.WebHooks.Routing;
 
@@ -10,6 +11,7 @@ namespace Microsoft.AspNetCore.Routing
     /// <summary>
     /// Extension methods for the <see cref="RouteData"/> class.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class WebHookRouteDataExtensions
     {
         /// <summary>
@@ -33,6 +35,36 @@ namespace Microsoft.AspNetCore.Routing
                 return receiverExists == true;
             }
 
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the single event name for the current request.
+        /// </summary>
+        /// <param name="routeData">The <see cref="RouteData"/> for the current request.</param>
+        /// <param name="eventName">Set to the event name identified in the request.</param>
+        /// <returns>
+        /// <see langword="true"/> if exactly one event name was found in the <paramref name="routeData"/>;
+        /// <see langword="false"/> otherwise.
+        /// </returns>
+        public static bool TryGetEventName(this RouteData routeData, out string eventName)
+        {
+            if (routeData == null)
+            {
+                throw new ArgumentNullException(nameof(routeData));
+            }
+
+            if (routeData.Values.TryGetValue(WebHookConstants.EventKeyName, out var name))
+            {
+                var potentialEventName = (string)name;
+                if (!string.IsNullOrEmpty(potentialEventName))
+                {
+                    eventName = potentialEventName;
+                    return true;
+                }
+            }
+
+            eventName = null;
             return false;
         }
 
@@ -63,7 +95,8 @@ namespace Microsoft.AspNetCore.Routing
             }
 
             var count = 0;
-            while (routeData.Values.ContainsKey($"{WebHookConstants.EventKeyName}[{count}]"))
+            while (count < WebHookConstants.EventKeyNames.Length &&
+                routeData.Values.ContainsKey(WebHookConstants.EventKeyNames[count]))
             {
                 count++;
             }
@@ -71,12 +104,12 @@ namespace Microsoft.AspNetCore.Routing
             if (count != 0)
             {
                 eventNames = new string[count];
-
-                // ??? This repeatedly allocates the same strings. Might be good to cache the first 100 or so keys.
                 for (var i = 0; i < count; i++)
                 {
-                    eventNames[i] = (string)routeData.Values[$"{WebHookConstants.EventKeyName}[{count}]"];
+                    eventNames[i] = (string)routeData.Values[WebHookConstants.EventKeyNames[i]];
                 }
+
+                return true;
             }
 
             eventNames = null;

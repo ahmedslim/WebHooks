@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.WebHooks.Properties;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -24,12 +25,22 @@ namespace Microsoft.AspNetCore.WebHooks.Filters
         /// <summary>
         /// Instantiates a new <see cref="StripeTestEventResponseFilter"/> instance.
         /// </summary>
+        /// <param name="configuration">The <see cref="IConfiguration"/>.</param>
         /// <param name="loggerFactory">The <see cref="ILoggerFactory"/>.</param>
-        /// <param name="receiverConfig">The <see cref="IWebHookReceiverConfig"/>.</param>
-        public StripeTestEventResponseFilter(ILoggerFactory loggerFactory, IWebHookReceiverConfig receiverConfig)
+        public StripeTestEventResponseFilter(IConfiguration configuration, ILoggerFactory loggerFactory)
         {
+            var configurationRoot = configuration as IConfigurationRoot;
+            if (configurationRoot == null)
+            {
+                var message = string.Format(
+                    CultureInfo.CurrentCulture,
+                    Resources.General_ArgumentMustImplement,
+                    typeof(IConfigurationRoot));
+                throw new ArgumentException(message, nameof(configuration));
+            }
+
             _logger = loggerFactory.CreateLogger<StripeTestEventResponseFilter>();
-            _passThroughTestEvents = receiverConfig.IsTrue(StripeConstants.PassThroughTestEventsConfigurationKey);
+            _passThroughTestEvents = configurationRoot.IsTrue(StripeConstants.PassThroughTestEventsConfigurationKey);
         }
 
         /// <inheritdoc />

@@ -66,7 +66,7 @@ namespace Microsoft.AspNetCore.WebHooks.Filters
             }
 
             var routeData = context.RouteData;
-            if (routeData.TryGetEventNames(out var eventNames) &&
+            if (routeData.TryGetEventName(out var eventName) &&
                 routeData.TryGetReceiverName(out var receiverName))
             {
                 var eventMetadata = _eventMetadata.FirstOrDefault(metadata => metadata.IsApplicable(receiverName));
@@ -74,7 +74,7 @@ namespace Microsoft.AspNetCore.WebHooks.Filters
 
                 // If this is a ping request, short-circuit further processing.
                 if (pingEventName != null &&
-                    eventNames.Any(name => string.Equals(name, pingEventName, StringComparison.OrdinalIgnoreCase)))
+                    string.Equals(eventName, pingEventName, StringComparison.OrdinalIgnoreCase))
                 {
                     _logger.LogInformation(0, "Received a {ReceiverName} Ping Event -- ignoring.", receiverName);
 

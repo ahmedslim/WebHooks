@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -17,6 +18,7 @@ namespace Microsoft.Extensions.DependencyInjection
     /// <summary>
     /// Extension methods for setting up WebHooks in an <see cref="IMvcCoreBuilder" />.
     /// </summary>
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public static class WebHookMvcCoreBuilderExtensions
     {
         /// <summary>
@@ -42,7 +44,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<WebHookReceiverExistsConstraint>();
             services.TryAddSingleton<WebHookMultipleEventMapperConstraint>();
 
-            services.TryAddSingleton<IWebHookReceiverConfig, WebHookReceiverConfig>();
             services.TryAddSingleton<WebHookReceiverExistsFilter>();
 
             // ??? Does WebHookExceptionFilter need a non-default Order too?

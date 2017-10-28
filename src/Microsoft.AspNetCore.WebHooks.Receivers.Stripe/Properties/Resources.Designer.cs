@@ -61,6 +61,15 @@ namespace Microsoft.AspNetCore.WebHooks.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value must implement &apos;{0}&apos;..
+        /// </summary>
+        internal static string General_ArgumentMustImplement {
+            get {
+                return ResourceManager.GetString("General_ArgumentMustImplement", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to retrieve &apos;{0}&apos; request data from &apos;{1}.{2}&apos;..
         /// </summary>
         internal static string TestEvent_MissingItem {

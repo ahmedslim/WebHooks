@@ -85,7 +85,8 @@ namespace Microsoft.AspNetCore.WebHooks.Routing
                         routeData.TryGetReceiverName(out var receiverName);
                         _logger.LogError(
                             500,
-                            "A {ReceiverName} WebHook request must contain a '{HeaderName}' HTTP header indicating the type of event.",
+                            "A {ReceiverName} WebHook request must contain a '{HeaderName}' HTTP header indicating " +
+                            "the type of event.",
                             receiverName,
                             eventMetadata.HeaderName);
                     }
@@ -109,7 +110,8 @@ namespace Microsoft.AspNetCore.WebHooks.Routing
                         routeData.TryGetReceiverName(out var receiverName);
                         _logger.LogError(
                             501,
-                            "A {ReceiverName} WebHook request must contain a '{QueryParameterKey}' query parameter indicating the type of event.",
+                            "A {ReceiverName} WebHook request must contain a '{QueryParameterKey}' query parameter " +
+                            "indicating the type of event.",
                             receiverName,
                             eventMetadata.QueryParameterName);
                     }
@@ -138,8 +140,16 @@ namespace Microsoft.AspNetCore.WebHooks.Routing
             }
             else
             {
-                // ??? This repeatedly allocates the same strings. Might be good to cache the first 100 or so keys.
-                for (var i = 0; i < events.Length; i++)
+                if (events.Length > WebHookConstants.EventKeyNames.Length)
+                {
+                    _logger.LogWarning(
+                        502,
+                        "Received {EventCount} events. Ignoring those after the first {MaximumEventCount}.",
+                        events.Length,
+                        WebHookConstants.EventKeyNames.Length);
+                }
+
+                for (var i = 0; i < events.Length && i < WebHookConstants.EventKeyNames.Length; i++)
                 {
                     routeValues[$"{WebHookConstants.EventKeyName}[{i}]"] = events[i];
                 }
